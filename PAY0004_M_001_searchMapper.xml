@@ -1,0 +1,385 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper
+	namespace="jp.co.amiactive.mapper.PAY0004.PAY0004_M_001_searchMapper">
+
+	<!-- upRadio最大印刷実施連番 -->
+	<select id="upMaxPrint"
+		parameterType="jp.co.amiactive.model.PAY0004.PAY0004_M_001_Model"
+		resultType="jp.co.amiactive.model.PAY0004.PAY0004_M_SQLModel">
+		SELECT
+		MAX(print_implementation_num) AS printImplementationNum
+		FROM
+		(
+		SELECT
+		print_implementation_num
+		FROM
+		t_monthly_payroll_statement_detail
+		<where>
+			delete_flg = '0'
+			<if test="upYear != null">
+				AND
+				aggregate_period LIKE CONCAT(#{upYear}, '%')
+			</if>
+		</where>
+		LIMIT 30 OFFSET #{allPage}
+		)page
+		;
+
+	</select>
+	
+	<!-- upRadio検索処理 recentがあるとき -->
+	<select id="yearSerRecentMapper"
+		parameterType="jp.co.amiactive.model.PAY0004.PAY0004_M_001_Model"
+		resultType="jp.co.amiactive.model.PAY0004.PAY0004_M_SQLModel">
+		SELECT
+		aggregate_period AS aggregatePeriod,
+		print_implementation_num AS
+		printImplementationNum
+		FROM
+		t_monthly_payroll_statement_detail
+		WHERE
+			delete_flg = '0'
+		AND
+			print_implementation_num=(
+				SELECT
+					MAX(print_implementation_num)
+				FROM
+					t_monthly_payroll_statement_detail
+				WHERE
+					delete_flg = '0'
+				AND
+					aggregate_period LIKE CONCAT(#{upYear}, '%')
+				)
+					
+		;
+	</select>
+	
+	<!-- upRadio検索処理 -->
+	<select id="yearSerMapper"
+		parameterType="jp.co.amiactive.model.PAY0004.PAY0004_M_001_Model"
+		resultType="jp.co.amiactive.model.PAY0004.PAY0004_M_SQLModel">
+		SELECT
+		aggregate_period AS aggregatePeriod,
+		print_implementation_num AS
+		printImplementationNum
+		FROM
+		t_monthly_payroll_statement_detail
+		<where>
+			delete_flg = '0'
+			<if test="upYear != null">
+				AND
+				aggregate_period LIKE CONCAT(#{upYear}, '%')
+			</if>
+		</where>
+		ORDER BY
+		aggregate_period
+		LIMIT 30 OFFSET #{allPage}
+		;
+	</select>
+
+	<!-- downRadio最大印刷実施連番 -->
+	<select id="downMaxPrint"
+		parameterType="jp.co.amiactive.model.PAY0004.PAY0004_M_001_Model"
+		resultType="jp.co.amiactive.model.PAY0004.PAY0004_M_SQLModel">
+		SELECT
+		MAX(print_implementation_num) AS
+		printImplementationNum
+		FROM
+		(
+		SELECT
+		print_implementation_num
+		FROM
+		t_monthly_payroll_statement_detail
+		WHERE
+		delete_flg = '0'
+		AND
+		CAST(aggregate_period AS INTEGER) BETWEEN CAST(#{colectStartYearMonth}
+		AS INTEGER)
+		AND
+		CAST(#{colectEndYearMonth} AS INTEGER)
+
+		LIMIT 30 OFFSET
+		#{allPage}
+		)page
+		;
+	</select>
+	
+	<!-- downRadio検索処理　recentがあるとき -->
+	<select id="yearMonthRecentMapper"
+		parameterType="jp.co.amiactive.model.PAY0004.PAY0004_M_001_Model"
+		resultType="jp.co.amiactive.model.PAY0004.PAY0004_M_SQLModel">
+		SELECT
+		aggregate_period AS aggregatePeriod,
+		print_implementation_num AS printImplementationNum
+		FROM
+		t_monthly_payroll_statement_detail
+		WHERE
+		delete_flg = '0'
+		AND
+		CAST(aggregate_period AS INTEGER) BETWEEN CAST(#{colectStartYearMonth}
+		AS INTEGER) AND
+		CAST(#{colectEndYearMonth} AS INTEGER)
+		LIMIT 30 OFFSET
+		#{allPage};
+	</select>
+	
+	<!-- downRadio検索処理 -->
+	<select id="yearMonthMapper"
+		parameterType="jp.co.amiactive.model.PAY0004.PAY0004_M_001_Model"
+		resultType="jp.co.amiactive.model.PAY0004.PAY0004_M_SQLModel">
+		SELECT
+		aggregate_period AS aggregatePeriod,
+		print_implementation_num AS printImplementationNum
+		FROM
+		t_monthly_payroll_statement_detail
+		WHERE
+		delete_flg = '0'
+		AND
+		CAST(aggregate_period AS INTEGER) BETWEEN CAST(#{colectStartYearMonth}
+		AS INTEGER) AND
+		CAST(#{colectEndYearMonth} AS INTEGER)
+		LIMIT 30 OFFSET
+		#{allPage};
+	</select>
+
+	<!-- 削除処理 -->
+	<select id="updateDelete"
+		parameterType="jp.co.amiactive.model.PAY0004.PAY0004_M_001_Model">
+		UPDATE
+		t_monthly_payroll_statement_detail
+		SET
+		delete_flg = '1'
+		WHERE
+		delete_flg = '0'
+		<foreach item="list" collection="list" nullable="true"
+			open="AND aggregate_period in (" separator="," close=")">
+			#{list}
+		</foreach>
+	</select>
+
+	<!-- 詳細処理　 -->
+	<select id="detail"
+		parameterType="jp.co.amiactive.model.PAY0004.PAY0004_M_001_Model"
+		resultType="jp.co.amiactive.model.PAY0004.PAY0004_M_001_detailSqlModel">
+		SELECT
+		employee_cd AS employeeCd,
+		prescribed_work_date AS
+		prescribedWorkDate,
+		prescribed_work_count AS prescribedWorkCount,
+		attendances_num AS attendancesNum,
+		attendance_basic_days AS
+		attendanceBasicDays,
+		actual_working_hours AS actualWorkingHours,
+		absenteeism_days AS absenteeismDays,
+		absent_basic_days AS
+		absentBasicDays,
+		paid_days AS paidDays,
+		used_paid_leave_hours AS
+		usedPaidLeaveHours,
+		unused_paid_leave_days AS unusedPaidLeaveDays,
+		unused_paid_leave_hours AS unusedPaidLeaveHours,
+		holiday_working_hours
+		AS holidayWorkingHours,
+		special_leave_days AS specialLeaveDays,
+		base_salary AS baseSalary,
+		basic_monthly_salary AS basicMonthlySalary,
+		positional_allowance AS positionalAllowance,
+		executive_compensation AS
+		executiveCompensation,
+		overtime_pay AS overtimePay,
+		expenses_for_working_on_holidays AS expensesForWorkingOnHolidays,
+		tax_free_com_expenses AS taxFreeComExpenses,
+		tax_com_expenses AS
+		taxComExpenses,
+		income_tax AS incomeTax,
+		income_tax_cumulative AS
+		incomeTaxCumulative,
+		resident_tax AS residentTax,
+		tax_payment_cumulative AS taxPaymentCumulative,
+		tax_table AS taxTable,
+		welfare_pension_fund AS welfarePensionFund,
+		emp_pension_ins AS
+		empPensionIns,
+		welfare_pension_standard_remuneration AS
+		welfarePensionStandardRemuneration,
+		social_ins_total AS socialInsTotal,
+		social_insurance_premium_calculation AS
+		socialInsurancePremiumCalculation,
+		social_insurance_premium_adjustment
+		AS
+		socialInsurancePremiumAdjustment,
+		social_insurance_premium_after_deduction AS
+		socialInsurancePremiumAfterDeduction,
+		emp_ins_fee AS empInsFee,
+		health_ins_fee AS healthInsFee,
+		health_insurance_standard_remuneration
+		AS healthInsuranceStandardRemuneration,
+		nurs_care_ins_fee AS
+		nursCareInsFee,
+		year_end_adjustment_withholding AS
+		yearEndAdjustmentWithholding,
+		year_end_adjustment_refund AS
+		yearEndAdjustmentRefund,
+		deduction_total AS deductionTotal,
+		net_payment_total AS netPaymentTotal,
+		number_of_dependents AS
+		numberOfDependents
+		FROM
+		t_monthly_payroll_statement_detail
+		WHERE
+		aggregate_period = #{yearMonth}
+		;
+	</select>
+	
+	<!-- 集計処理　➀ -->
+	<select id="collectYearMonth"
+		parameterType="jp.co.amiactive.model.PAY0004.PAY0004_M_001_Model"
+		resultType="jp.co.amiactive.model.PAY0004.PAY0004_M_001_detailSqlModel">
+		SELECT
+		employee_cd AS employeeCd,
+		prescribed_work_date AS
+		prescribedWorkDate,
+		prescribed_work_count AS prescribedWorkCount,
+		attendances_num AS attendancesNum,
+		attendance_basic_days AS
+		attendanceBasicDays,
+		actual_working_hours AS actualWorkingHours,
+		absenteeism_days AS absenteeismDays,
+		absent_basic_days AS
+		absentBasicDays,
+		paid_days AS paidDays,
+		used_paid_leave_hours AS
+		usedPaidLeaveHours,
+		unused_paid_leave_days AS unusedPaidLeaveDays,
+		unused_paid_leave_hours AS unusedPaidLeaveHours,
+		holiday_working_hours
+		AS holidayWorkingHours,
+		special_leave_days AS specialLeaveDays,
+		base_salary AS baseSalary,
+		basic_monthly_salary AS basicMonthlySalary,
+		positional_allowance AS positionalAllowance,
+		executive_compensation AS
+		executiveCompensation,
+		overtime_pay AS overtimePay,
+		expenses_for_working_on_holidays AS expensesForWorkingOnHolidays,
+		tax_free_com_expenses AS taxFreeComExpenses,
+		tax_com_expenses AS
+		taxComExpenses,
+		income_tax AS incomeTax,
+		income_tax_cumulative AS
+		incomeTaxCumulative,
+		resident_tax AS residentTax,
+		tax_payment_cumulative AS taxPaymentCumulative,
+		tax_table AS taxTable,
+		welfare_pension_fund AS welfarePensionFund,
+		emp_pension_ins AS
+		empPensionIns,
+		welfare_pension_standard_remuneration AS
+		welfarePensionStandardRemuneration,
+		social_ins_total AS socialInsTotal,
+		social_insurance_premium_calculation AS
+		socialInsurancePremiumCalculation,
+		social_insurance_premium_adjustment
+		AS
+		socialInsurancePremiumAdjustment,
+		social_insurance_premium_after_deduction AS
+		socialInsurancePremiumAfterDeduction,
+		emp_ins_fee AS empInsFee,
+		health_ins_fee AS healthInsFee,
+		health_insurance_standard_remuneration
+		AS healthInsuranceStandardRemuneration,
+		nurs_care_ins_fee AS
+		nursCareInsFee,
+		year_end_adjustment_withholding AS
+		yearEndAdjustmentWithholding,
+		year_end_adjustment_refund AS
+		yearEndAdjustmentRefund,
+		deduction_total AS deductionTotal,
+		net_payment_total AS netPaymentTotal,
+		number_of_dependents AS
+		numberOfDependents
+		FROM
+		t_monthly_payroll_statement_detail
+		WHERE
+		aggregate_period LIKE CONCAT(#{year}, '%')
+		;
+	</select>
+
+	<!-- 集計処理　② -->
+	<select id="collectMonth"
+		parameterType="jp.co.amiactive.model.PAY0004.PAY0004_M_001_Model"
+		resultType="jp.co.amiactive.model.PAY0004.PAY0004_M_001_detailSqlModel">
+		SELECT
+		employee_cd AS employeeCd,
+		prescribed_work_date AS
+		prescribedWorkDate,
+		prescribed_work_count AS prescribedWorkCount,
+		attendances_num AS attendancesNum,
+		attendance_basic_days AS
+		attendanceBasicDays,
+		actual_working_hours AS actualWorkingHours,
+		absenteeism_days AS absenteeismDays,
+		absent_basic_days AS
+		absentBasicDays,
+		paid_days AS paidDays,
+		used_paid_leave_hours AS
+		usedPaidLeaveHours,
+		unused_paid_leave_days AS unusedPaidLeaveDays,
+		unused_paid_leave_hours AS unusedPaidLeaveHours,
+		holiday_working_hours
+		AS holidayWorkingHours,
+		special_leave_days AS specialLeaveDays,
+		base_salary AS baseSalary,
+		basic_monthly_salary AS basicMonthlySalary,
+		positional_allowance AS positionalAllowance,
+		executive_compensation AS
+		executiveCompensation,
+		overtime_pay AS overtimePay,
+		expenses_for_working_on_holidays AS expensesForWorkingOnHolidays,
+		tax_free_com_expenses AS taxFreeComExpenses,
+		tax_com_expenses AS
+		taxComExpenses,
+		income_tax AS incomeTax,
+		income_tax_cumulative AS
+		incomeTaxCumulative,
+		resident_tax AS residentTax,
+		tax_payment_cumulative AS taxPaymentCumulative,
+		tax_table AS taxTable,
+		welfare_pension_fund AS welfarePensionFund,
+		emp_pension_ins AS
+		empPensionIns,
+		welfare_pension_standard_remuneration AS
+		welfarePensionStandardRemuneration,
+		social_ins_total AS socialInsTotal,
+		social_insurance_premium_calculation AS
+		socialInsurancePremiumCalculation,
+		social_insurance_premium_adjustment
+		AS
+		socialInsurancePremiumAdjustment,
+		social_insurance_premium_after_deduction AS
+		socialInsurancePremiumAfterDeduction,
+		emp_ins_fee AS empInsFee,
+		health_ins_fee AS healthInsFee,
+		health_insurance_standard_remuneration
+		AS healthInsuranceStandardRemuneration,
+		nurs_care_ins_fee AS
+		nursCareInsFee,
+		year_end_adjustment_withholding AS
+		yearEndAdjustmentWithholding,
+		year_end_adjustment_refund AS
+		yearEndAdjustmentRefund,
+		deduction_total AS deductionTotal,
+		net_payment_total AS netPaymentTotal,
+		number_of_dependents AS
+		numberOfDependents
+		FROM
+		t_monthly_payroll_statement_detail
+		WHERE
+		aggregate_period = #{yearMonth}
+		;
+	</select>
+</mapper>

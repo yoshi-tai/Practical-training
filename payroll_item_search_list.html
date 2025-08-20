@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+	<script src="./js/payroll_item_search_list.js"></script>
+<link rel="stylesheet" href="./css/payroll_item_search_list.css">
+<meta charset="UTF-8">
+<script>
+  function checkAtLeastOneChecked() {
+    const checkedBoxes = document.querySelectorAll('input.print-check:checked');
+    if (checkedBoxes.length === 0) {
+      alert('チェックを入れてください');
+      return false;  // フォーム送信をキャンセル
+    }
+     // 確認ダイアログを表示
+  const result = confirm('削除処理を行いますか？');
+  if (!result) {
+    // キャンセルされたら送信中止
+    alert('削除処理を中止しました');
+    return false;
+  }
+    alert('選択したチェックボックスの対象年月日を削除しました');
+    return true; // 問題なければ送信継続
+  };
+  
+  //カレンダーとプルダウン upYearとupCalender
+  document.addEventListener("DOMContentLoaded", () => {
+
+  const upYear = document.getElementById("upYear");
+  const upCalender = document.getElementById("upCalender");
+
+  // プルダウン変更 → カレンダー年だけ更新
+  upYear.addEventListener("change", () => {
+      if(upYear.value !== "empty") {
+          // 既存の月を保持、空なら01月
+          const month = upCalender.value ? upCalender.value.slice(5,7) : "01";
+          upCalender.value = `${upYear.value}-${month}`;
+      }
+  });
+
+  // カレンダー変更 → プルダウン年だけ更新
+  upCalender.addEventListener("change", () => {
+      if(upCalender.value) {
+          const year = upCalender.value.slice(0,4);
+          upYear.value = year;
+      }
+  });
+});   
+  
+  //カレンダーとプルダウン downLeftYearとdownLeftMonthとdownLeftCalender
+  document.addEventListener("DOMContentLoaded", () => {
+	  const downYear = document.getElementById("downLeftYear");
+	  const downMonth = document.getElementById("downLeftMonth");
+	  const downCalender = document.getElementById("downLeftCalender");
+
+	  // プルダウン変更 → カレンダー更新
+	  function updateCalendar() {
+	      if(downYear.value !== "empty" && downMonth.value !== "empty") {
+	          const monthStr = downMonth.value.padStart(2, "0"); // 1桁月を2桁に
+	          downCalender.value = `${downYear.value}-${monthStr}`;
+	      }
+	  }
+
+	  downYear.addEventListener("change", updateCalendar);
+	  downMonth.addEventListener("change", updateCalendar);
+
+	  // カレンダー変更 → プルダウン更新
+	  downCalender.addEventListener("change", () => {
+	      if(downCalender.value) {
+	          const [year, month] = downCalender.value.split("-");
+	          downYear.value = year;
+	          downMonth.value = month; // 数字としてプルダウンに設定
+	      }
+	  });
+	});
+  
+  //カレンダーとプルダウン downRightYearとdownRightMonthとdownRightCalender
+  document.addEventListener("DOMContentLoaded", () => {
+	  const downYear = document.getElementById("downRightYear");
+	  const downMonth = document.getElementById("downRightMonth");
+	  const downCalender = document.getElementById("downRightCalender");
+
+	  // プルダウン変更 → カレンダー更新
+	  function updateCalendar() {
+	      if(downYear.value !== "empty" && downMonth.value !== "empty") {
+	          const monthStr = downMonth.value.padStart(2, "0"); // 1桁月を2桁に
+	          downCalender.value = `${downYear.value}-${monthStr}`;
+	      }
+	  }
+
+	  downYear.addEventListener("change", updateCalendar);
+	  downMonth.addEventListener("change", updateCalendar);
+
+	  // カレンダー変更 → プルダウン更新
+	  downCalender.addEventListener("change", () => {
+	      if(downCalender.value) {
+	          const [year, month] = downCalender.value.split("-");
+	          downYear.value = year;
+	          downMonth.value = month; // 文字列のまま設定
+	      }
+	  });
+	});
+
+  
+</script>
+
+</head>
+<body>
+<form th:action="@{/payroll_item_search_list}" method="post" th:object="${PAY0004_M_001_Model}">
+
+	<h1>給与明細検索一覧画面</h1>
+	<span th:text="${msg}"></span><br>
+
+	<input type="submit" id="regist" value="登録" name="registOneScreen" >
+	<input type="submit" id="delete" value="削除" name="delete" onclick="return checkAtLeastOneChecked()"
+		th:disabled="${resultList == null or #lists.isEmpty(resultList)}">
+	<input type="button" id="print" value="印刷" onclick="print()" >
+	<input type="submit" id="menu" value="メニュー" name="menu">
+<p>検索条件設定</p>
+
+	<table id="updataTable" >
+		<tr>
+			<td><input type="radio" id="upRadio" value="集計年" th:field="*{radio}" name="radio">集計年</td>
+			<td><select id="upYear" th:field="*{upYear}">
+				<option value="empty" selected></option>
+					<th:block th:each="years : ${yearsOld}">
+						<option th:value="${years}" th:text="${years}"></option>
+					</th:block>
+				</select>年</td>
+			<td></td>
+			<td></td>
+			<td><input type="month" id="upCalender" name="selectedMonth" th:field="*{upCalender}"></td>
+			<td></td>
+		</tr>
+		<tr>
+			<td><input type="radio" id="downRadio" th:field="*{radio}" value="集計年月" name="radio">集計年月</td>
+			<td><select id=downLeftYear th:field="*{downLeftYear}">
+				<option value="empty" selected></option>
+					<th:block th:each="years : ${yearsOld}">
+						<option th:value="${years}" th:text="${years}"></option>
+					</th:block>
+				</select>年
+				
+			<td><select id="downLeftMonth" th:field="*{downLeftMonth}">
+					<option value="empty" selected="selected"></option>
+						<th:block th:each="monthes : ${monthes}">
+							<option th:value="${monthes}" th:text="${monthes}"></option>
+						</th:block>
+
+				</select>月
+				<input type="month" id="downLeftCalender" name="selectedMonth" th:field="*{downLeftCalender}" value="カレンダー②"></td>
+				<td>～</td>
+			<td><select id="downRightYear" th:field="*{downRightYear}">
+				<option value="empty" selected></option>
+					<th:block th:each="years : ${yearsOld}">
+						<option th:value="${years}" th:text="${years}"></option>
+					</th:block>
+				</select>年
+				<select id="downRightMonth" th:field="*{downRightMonth}">
+					<option value="empty" selected="selected"></option>
+						<th:block th:each="monthes : ${monthes}">
+							<option th:value="${monthes}" th:text="${monthes}"></option>
+						</th:block>
+				</select>月</td>
+			<td><input type="month" id="downRightCalender" name="selectedMonth" th:field="*{downRightCalender}" value="カレンダー③"></td>
+		</tr>
+		<tr>
+			<td>表示世代</td>
+			<td><select id="jeneration" th:field="*{recent}">
+					<option value="" selected="selected"></option>
+					<option value="最新">最新</option>
+					<option value="すべて">すべて</option>
+				</select></td>
+			<td></td>
+			<td></td>
+			<td></td>
+		</tr>
+		</table>
+		
+		<br>
+		<div class="label">
+			<button type="submit" id="searchBtn" th:field="*{search}" >検索</button>
+			<input type="hidden" name="search" th:value="1" >
+		</div>
+		<div th:if="${resultList != null and #lists.isEmpty(resultList)}">
+			<p>該当するデータがありません。</p>
+		</div>
+		
+	<div th:if="${resultList != null and !#lists.isEmpty(resultList)}">
+		<div class="move">
+			<input type="hidden" name="currentPage" id="currentPageInput" th:value="${currentPage}">
+			
+			<button type="submit" id="mostBack" th:value="1" name="page" th:disabled="${currentPage <= 1}">&lt;&lt;</button>
+			<button type="submit" id="backOne" th:value="${currentPage >= 1 ? currentPage - 1 : currentPage}" name="backOne" th:disabled="${currentPage <= 1}">&lt;</button>
+			
+			<button type="submit" id="one" th:value="1" name="page" th:disabled="${#lists.isEmpty(resultList)}">1</button>
+			<button type="submit" id="two" th:value="2" name="page" th:disabled="${#lists.isEmpty(resultList)}">2</button> 
+			<button type="submit" id="three" th:value="3" name="page" th:disabled="${#lists.isEmpty(resultList)}">3</button>
+			<button type="submit" id="four" th:value="4" name="page" th:disabled="${#lists.isEmpty(resultList)}">4</button>
+			<button type="submit" id="five" th:value="5" name="page" th:disabled="${#lists.isEmpty(resultList)}">5</button>
+			<button type="submit" id="six" th:value="6" name="page" th:disabled="${#lists.isEmpty(resultList)}">6</button>
+			<button type="submit" id="seven" th:value="7" name="page" th:disabled="${#lists.isEmpty(resultList)}">7</button>
+			<button type="submit" id="eight" th:value="8" name="page" th:disabled="${#lists.isEmpty(resultList)}">8</button>
+			<button type="submit" id="nine" th:value="9" name="page" th:disabled="${#lists.isEmpty(resultList)}">9</button>
+			<button type="submit" id="ten" th:value="10" name="page" th:disabled="${#lists.isEmpty(resultList)}">10</button>
+			
+	
+			<button type="submit" id="next" th:value="${currentPage <= 10 ? currentPage + 1 : currentPage}" name="page" th:disabled="${currentPage >= 10}">&gt;</button>
+			<button type="submit" id="mostNext" th:value="10" name="page" th:disabled="${currentPage >= 10 }">&gt;&gt;</button>
+			<span th:text="${currentPage + 'ページ'}" class="page" style="float: right;"></span>
+			<input type="hidden" th:field="*{currentPage}" >
+		</div>
+		
+		<table border=1 id="dataTable" >
+				<thead>
+					<tr>
+						<th>選択</th>
+						<th>集計年月</th>
+						<th>種類</th>
+						<th>表示世代</th>
+						<th>詳細</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each="data : ${resultList}">
+						<td><input type="checkbox" class="print-check" name="check"
+							th:value="${data.yearMonth}"></td>
+						<td th:text="${data.yearMonth}"></td>
+						<td>給与</td>
+						<td th:text="${data.status}"></td>
+						<td><button type="submit" id="details-button" onclick="details()" th:value="${data.yearMonth}" name="detail">詳細</button></td>
+					</tr>
+				</tbody>
+			</table>
+	</div>
+</form>		
+	
+</body>
+</html>

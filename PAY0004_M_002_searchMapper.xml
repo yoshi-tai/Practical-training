@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper
+	namespace="jp.co.amiactive.mapper.PAY0004.PAY0004_M_002_searchMapper">
+
+	<!-- 詳細処理　 -->
+	<select id="detail"
+		parameterType="jp.co.amiactive.model.PAY0004.PAY0004_M_001_Model"
+		resultType="jp.co.amiactive.model.PAY0004.PAY0004_M_001_detailSqlModel">
+		SELECT
+		employee_cd AS employeeCd,
+		prescribed_work_date AS
+		prescribedWorkDate,
+		prescribed_work_count AS prescribedWorkCount,
+		attendances_num AS attendancesNum,
+		attendance_basic_days AS
+		attendanceBasicDays,
+		actual_working_hours AS actualWorkingHours,
+		absenteeism_days AS absenteeismDays,
+		absent_basic_days AS
+		absentBasicDays,
+		paid_days AS paidDays,
+		used_paid_leave_hours AS
+		usedPaidLeaveHours,
+		unused_paid_leave_days AS unusedPaidLeaveDays,
+		unused_paid_leave_hours AS unusedPaidLeaveHours,
+		holiday_working_hours
+		AS holidayWorkingHours,
+		special_leave_days AS specialLeaveDays,
+		base_salary AS baseSalary,
+		basic_monthly_salary AS basicMonthlySalary,
+		positional_allowance AS positionalAllowance,
+		executive_compensation AS
+		executiveCompensation,
+		overtime_pay AS overtimePay,
+		expenses_for_working_on_holidays AS expensesForWorkingOnHolidays,
+		tax_free_com_expenses AS taxFreeComExpenses,
+		tax_com_expenses AS
+		taxComExpenses,
+		income_tax AS incomeTax,
+		income_tax_cumulative AS
+		incomeTaxCumulative,
+		resident_tax AS residentTax,
+		tax_payment_cumulative AS taxPaymentCumulative,
+		tax_table AS taxTable,
+		welfare_pension_fund AS welfarePensionFund,
+		emp_pension_ins AS
+		empPensionIns,
+		welfare_pension_standard_remuneration AS
+		welfarePensionStandardRemuneration,
+		social_ins_total AS socialInsTotal,
+		social_insurance_premium_calculation AS
+		socialInsurancePremiumCalculation,
+		social_insurance_premium_adjustment
+		AS
+		socialInsurancePremiumAdjustment,
+		social_insurance_premium_after_deduction AS
+		socialInsurancePremiumAfterDeduction,
+		emp_ins_fee AS empInsFee,
+		health_ins_fee AS healthInsFee,
+		health_insurance_standard_remuneration
+		AS healthInsuranceStandardRemuneration,
+		nurs_care_ins_fee AS
+		nursCareInsFee,
+		year_end_adjustment_withholding AS
+		yearEndAdjustmentWithholding,
+		year_end_adjustment_refund AS
+		yearEndAdjustmentRefund,
+		deduction_total AS deductionTotal,
+		net_payment_total AS netPaymentTotal,
+		number_of_dependents AS
+		numberOfDependents
+		FROM
+		t_monthly_payroll_statement_detail
+		WHERE
+		aggregate_period = #{yearMonth}
+		;
+	</select>
+	<!-- 登録処理　Maxの値を取得 -->
+	<select id="registMax"
+		parameterType="jp.co.amiactive.model.PAY0004.PAY0004_M_001_Model"
+		resultType="int">
+
+		SELECT
+		Max(print_implementation_num)
+		FROM
+		t_monthly_payroll_statement
+		WHERE
+		aggregate_period = #{yearMonth}
+		;
+
+	</select>
+
+	<!-- 登録処理 -->
+	<insert id="regist"
+		parameterType="jp.co.amiactive.model.PAY0004.PAY0004_M_001_Model">
+		INSERT INTO t_monthly_payroll_statement (
+		print_implementation_num,
+		aggregate_period,
+		create_date,
+		delete_flg,
+		insert_date,
+		insert_user_cd,
+		update_date,
+		update_user_cd
+		)VALUES(
+		#{maxPrint},
+		#{yearMonth},
+		#{today},
+		0,
+		now(),
+		'testUser01',
+		null,
+		null
+		)
+		ON
+		CONFLICT (print_implementation_num, aggregate_period)
+		DO UPDATE SET
+		update_date = now(),
+		update_user_cd = EXCLUDED.insert_user_cd
+		;
+	</insert>
+</mapper>

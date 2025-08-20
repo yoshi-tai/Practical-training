@@ -1,0 +1,40 @@
+@charset "UTF-8";
+#updataTable {
+	width: 70%;
+}
+
+#dataTable {
+	width: 100%;
+}
+#regist {
+	width:100px;
+}
+#delete {
+	width:100px;
+}
+#print {
+	width:100px;
+}
+#menu{
+	float: right;
+	width:100px;
+}
+#searchBtn{
+	width:100px;
+
+}
+
+.label {
+	width: 100%;
+	text-align: center;
+	margin-top: 10px;
+}
+.move {
+	width: 100%;
+	text-align: center;
+	margin-top: 10px;
+}
+
+h1{
+	text-align: center;
+}

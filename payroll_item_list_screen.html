@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<style>
+h1 {
+	text-align: center;
+}
+
+.container {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.size {
+	padding: 3px 30px;
+}
+
+.table {
+	width: 500px;
+}
+</style>
+</head>
+<body>
+	<form th:action="@{/payroll_item_list_screen}" method="post"
+		th:object="${PAY0004_M_001_Model}">
+
+		<h1>給与明細一覧画面</h1>
+		<span th:text="${msg}"></span>
+		<div class="container">
+			<div class="left">
+				<input type="submit" id="regist" name=registTwoScreen value="登録"
+					class="size"> <input type="button" id="collect"
+					name="collect" value="集計" class="size"> <input
+					type="button" id="print" name="print" value="印刷" class="size">
+			</div>
+			<div class="right">
+				<input type="submit" id="back" name="back" value="戻る" class="size">
+				<input type="submit" id="menu" name="menu" value="メニュー" class="size">
+			</div>
+		</div>
+
+		<br>
+
+		<table border=1 class="table">
+			<tr>
+				<td>検索年度:</td>
+				<td><select id="year" th:field="*{upYear}">
+						<option value="empty" selected></option>
+						<th:block th:each="years : ${yearsOld}">
+							<option th:value="${years}" th:text="${years}"></option>
+						</th:block>
+				</select>年</td>
+				<td><select id="month" th:field="*{month}">
+						<option value="empty" selected></option>
+						<th:block th:each="monthes : ${monthes}">
+							<option th:value="${monthes}" th:text="${monthes}"></option>
+						</th:block>
+				</select>月</td>
+			</tr>
+			<tr>
+				<td>支給単位(v):</td>
+				<td><select>
+						<option value="empty" selected="selected"></option>
+						<option value="01">01:月給</option>
+						<option value="02">02:日給</option>
+				</select></td>
+				<td>
+					<div>
+						従業員数： <input type="text" name="empCount"
+							th:value="${detailList != null ? #lists.size(detailList) : 0}"
+							readonly>
+					</div>
+				</td>
+			</tr>
+		</table>
+		<br>
+		<th:block th:each="details: ${detailList}">
+			<input type="hidden" name="printImplementationNum"
+				th:value="${details.printImplementationNum}">
+		</th:block>
+
+		<table border=1 style="width: 100%; font-size: 10px;">
+			<tr>
+				<th></th>
+				<th th:each="details : ${detailList}"><span
+					th:text="${details.employeeCd}"></span><br> <span> </span> <!-- <span th:text="*{}">社員名</span><br>  -->
+				</th>
+				<th>合計</th>
+			</tr>
+
+			<tr>
+				<th>所定就労日</th>
+				<th:block th:each="details : ${detailList}">
+					<td><span th:text="${details.prescribedWorkDate}"></span></td>
+				</th:block>
+				<td th:text="${prescribedWorkDate}"></td>
+			</tr>
+			<tr>
+				<th>所定労働時間</th>
+				<th:block th:each="details : ${detailList}">
+					<td><span th:text="${details.prescribedWorkCount}"></span></td>
+				</th:block>
+				<td th:text="${prescribedWorkCount}"></td>
+			</tr>
+			<tr>
+				<th>出勤日数</th>
+				<th:block th:each="details : ${detailList}">
+					<td><span th:text="${details.attendancesNum}"></span></td>
+				</th:block>
+				<td th:text="${attendancesNum}"></td>
+			</tr>
+			<tr>
+				<th>出勤基礎日数</th>
+				<th:block th:each="details : ${detailList}">
+					<td><span th:text="${details.attendanceBasicDays}"></span></td>
+				</th:block>
+				<td th:text="${attendanceBasicDays}"></td>
+			</tr>
+			<tr>
+				<th>実務時間</th>
+				<th:block th:each="details : ${detailList}">
+					<td><span th:text="${details.actualWorkingHours}"></span></td>
+				</th:block>
+				<td th:text="${actualWorkingHours}"></td>
+			</tr>
+			<tr>
+				<th>欠勤日数</th>
+				<th:block th:each="details : ${detailList}">
+					<td><span th:text="${details.absenteeismDays}"></span></td>
+				</th:block>
+				<td th:text="${absenteeismDays}"></td>
+			</tr>
+			<tr>
+				<th>欠勤基礎日数</th>
+				<th:block th:each="details : ${detailList}">
+					<td><span th:text="${details.absentBasicDays}"></span></td>
+				</th:block>
+				<td th:text="${absentBasicDays}"></td>
+			</tr>
+			<tr>
+				<th>有給日数</th>
+				<th:block th:each="details : ${detailList}">
+					<td><span th:text="${details.paidDays}"></span></td>
+				</th:block>
+				<td th:text="${paidDays}"></td>
+			</tr>
+			<tr>
+				<th>有休時間</th>
+				<th:block th:each="details : ${detailList}">
+					<td><span th:text="${details.usedPaidLeaveHours}"></span></td>
+				</th:block>
+				<td th:text="${usedPaidLeaveHours}"></td>
+			</tr>
+			<tr>
+				<th>有休残日数</th>
+				<th:block th:each="details : ${detailList}">
+					<td><span th:text="${details.unusedPaidLeaveDays}"></span></td>
+				</th:block>
+				<td th:text="${unusedPaidLeaveDays}"></td>
+			</tr>
+			<tr>
+				<th>有休残時間</th>
+				<th:block th:each="details : ${detailList}">
+					<td><span th:text="${details.unusedPaidLeaveHours}"></span></td>
+				</th:block>
+				<td th:text="${unusedPaidLeaveHours}"></td>
+			</tr>
+			<tr>
+				<th>休日稼働時間</th>
+				<th:block th:each="details : ${detailList}">
+					<td><span th:text="${details.holidayWorkingHours}"></span></td>
+				</th:block>
+				<td th:text="${holidayWorkingHours}"></td>
+			</tr>
+			<tr>
+				<th>特別休暇日数</th>
+				<th:block th:each="details : ${detailList}">
+					<td><span th:text="${details.specialLeaveDays}"></span></td>
+				</th:block>
+				<td th:text="${specialLeaveDays}"></td>
+			</tr>
+			<tr>
+				<th>基本給</th>
+				<th:block th:each="details : ${detailList}">
+					<td><span th:text="${details.baseSalary}"></span></td>
+				</th:block>
+				<td th:text="${baseSalary}"></td>
+			</tr>
+			<tr>
+				<th>基本給(月給)</th>
+				<th:block th:each="details : ${detailList}">
+					<td><span th:text="${details.basicMonthlySalary}"></span></td>
+				</th:block>
+				<td th:text="${basicMonthlySalary}"></td>
+			</tr>
+			<tr>
+				<th>職務給</th>
+				<th:block th:each="details : ${detailList}">
+					<td><span th:text="${details.positionalAllowance}"></span></td>
+				</th:block>
+				<td th:text="${positionalAllowance}"></td>
+			</tr>
+			<tr>
+				<th>役員報酬</th>
+				<th:block th:each="details : ${detailList}">
+					<td><span th:text="${details.executiveCompensation}"></span></td>
+				</th:block>
+				<td th:text="${executiveCompensation}"></td>
+			</tr>
+			<tr>
+				<th>残業代</th>
+				<th:block th:each="details : ${detailList}">
+					<td><span th:text="${details.overtimePay}"></span></td>
+				</th:block>
+				<td th:text="${overtimePay}"></td>
+			</tr>
+			<tr>
+				<th>休日出勤経費</th>
+				<th:block th:each="details : ${detailList}">
+					<td><span th:text="${details.expensesForWorkingOnHolidays}"></span></td>
+				</th:block>
+				<td th:text="${expensesForWorkingOnHolidays}"></td>
+			</tr>
+			<tr>
+				<th>非課税通勤費</th>
+				<th:block th:each="details : ${detailList}">
+					<td><span th:text="${details.taxFreeComExpenses}"></span></td>
+				</th:block>
+				<td th:text="${taxFreeComExpenses}"></td>
+			</tr>
+			<tr>
+				<th>課税通勤費</th>
+				<th:block th:each="details : ${detailList}">
+					<td><span th:text="${details.taxComExpenses}"></span></td>
+				</th:block>
+				<td th:text="${taxComExpenses}"></td>
+			</tr>
+			<tr>
+				<th>所得税</th>
+				<th:block th:each="details : ${detailList}">
+					<td><span th:text="${details.incomeTax}"></span></td>
+				</th:block>
+				<td th:text="${incomeTax}"></td>
+			</tr>
+			<tr>
+				<th>所得税累計</th>
+				<th:block th:each="details : ${detailList}">
+					<td><span th:text="${details.incomeTaxCumulative}"></span></td>
+				</th:block>
+				<td th:text="${incomeTaxCumulative}"></td>
+			</tr>
+			<tr>
+				<th>住民税</th>
+				<th:block th:each="details : ${detailList}">
+					<td><span th:text="${details.residentTax}"></span></td>
+				</th:block>
+				<td th:text="${residentTax}"></td>
+			</tr>
+			<tr>
+				<th>課税支給累計</th>
+				<th:block th:each="details : ${detailList}">
+					<td><span th:text="${details.taxPaymentCumulative}"></span></td>
+				</th:block>
+				<td th:text="${taxPaymentCumulative}"></td>
+			</tr>
+			<tr>
+				<th>税額表</th>
+				<th:block th:each="details : ${detailList}">
+					<td><span th:text="${details.taxTable}"></span></td>
+				</th:block>
+				<td></td> <!-- th:text="${taxTable}" -->
+			</tr>
+			<tr>
+				<th>厚生年金基金</th>
+				<th:block th:each="details : ${detailList}">
+					<td><span th:text="${details.welfarePensionFund}"></span></td>
+				</th:block>
+				<td th:text="${welfarePensionFund}"></td>
+			</tr>
+			<tr>
+				<th>厚生年金保険</th>
+				<th:block th:each="details : ${detailList}">
+					<td><span th:text="${details.empPensionIns}"></span></td>
+				</th:block>
+				<td th:text="${empPensionIns}"></td>
+			</tr>
+			<tr>
+				<th>厚年標準報酬</th>
+				<th:block th:each="details : ${detailList}">
+					<td><span
+						th:text="${details.welfarePensionStandardRemuneration}"></span></td>
+				</th:block>
+				<td th:text="${welfarePensionStandardRemuneration}"></td>
+			</tr>
+			<tr>
+				<th>社会保険料計</th>
+				<th:block th:each="details : ${detailList}">
+					<td><span th:text="${details.socialInsTotal}"></span></td>
+				</th:block>
+				<td th:text="${socialInsTotal}"></td>
+			</tr>
+			<tr>
+				<th>社会保険累計</th>
+				<th:block th:each="details : ${detailList}">
+					<td><span
+						th:text="${details.socialInsurancePremiumCalculation}"></span></td>
+				</th:block>
+				<td th:text="${socialInsurancePremiumCalculation}"></td>
+			</tr>
+			<tr>
+				<th>社保料調整</th>
+				<th:block th:each="details : ${detailList}">
+					<td><span
+						th:text="${details.socialInsurancePremiumAdjustment}"></span></td>
+				</th:block>
+				<td th:text="${socialInsurancePremiumAdjustment}"></td>
+			</tr>
+			<tr>
+				<th>社保控除後計</th>
+				<th:block th:each="details : ${detailList}">
+					<td><span
+						th:text="${details.socialInsurancePremiumAfterDeduction}"></span></td>
+				</th:block>
+				<td th:text="${socialInsurancePremiumAfterDeduction}"></td>
+			</tr>
+			<tr>
+				<th>雇用保険料</th>
+				<th:block th:each="details : ${detailList}">
+					<td><span th:text="${details.empInsFee}"></span></td>
+				</th:block>
+				<td th:text="${empInsFee}"></td>
+			</tr>
+			<tr>
+				<th>健康保険料</th>
+				<th:block th:each="details : ${detailList}">
+					<td><span th:text="${details.healthInsFee}"></span></td>
+				</th:block>
+				<td th:text="${healthInsFee}"></td>
+			</tr>
+			<tr>
+				<th>健保標準報酬</th>
+				<th:block th:each="details : ${detailList}">
+					<td><span
+						th:text="${details.healthInsuranceStandardRemuneration}"></span></td>
+				</th:block>
+				<td th:text="${healthInsuranceStandardRemuneration}"></td>
+			</tr>
+
+			<tr>
+				<th>介護保険料</th>
+				<th:block th:each="details : ${detailList}">
+					<td><span th:text="${details.nursCareInsFee}"></span></td>
+				</th:block>
+				<td th:text="${nursCareInsFee}"></td>
+			</tr>
+
+			<tr>
+				<th>年末調整徴収</th>
+				<th:block th:each="details : ${detailList}">
+					<td><span th:text="${details.yearEndAdjustmentWithholding}"></span></td>
+				</th:block>
+				<td th:text="${yearEndAdjustmentWithholding}"></td>
+			</tr>
+
+			<tr>
+				<th>年末調整還付</th>
+				<th:block th:each="details : ${detailList}">
+					<td><span th:text="${details.yearEndAdjustmentRefund}"></span></td>
+				</th:block>
+				<td th:text="${yearEndAdjustmentRefund}"></td>
+			</tr>
+
+			<tr>
+				<th>控除合計</th>
+				<th:block th:each="details : ${detailList}">
+					<td><span th:text="${details.deductionTotal}"></span></td>
+				</th:block>
+				<td th:text="${deductionTotal}"></td>
+			</tr>
+
+			<tr>
+				<th>差引支給合計</th>
+				<th:block th:each="details : ${detailList}">
+					<td><span th:text="${details.netPaymentTotal}"></span></td>
+				</th:block>
+				<td th:text="${netPaymentTotal}"></td>
+			</tr>
+
+			<tr>
+				<th>扶養人数</th>
+				<th:block th:each="details : ${detailList}">
+					<td><span th:text="${details.numberOfDependents}"></span></td>
+				</th:block>
+				<td th:text="${numberOfDependents}"></td>
+			</tr>
+		</table>
+	</form>
+</body>
+</html>
