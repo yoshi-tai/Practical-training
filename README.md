@@ -1,2 +1,3 @@
 # Practical-training
-実務研修　
+
+Practical-training（実務研修）
